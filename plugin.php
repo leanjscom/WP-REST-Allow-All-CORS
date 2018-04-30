@@ -31,7 +31,15 @@ function wp_rest_allow_all_cors() {
 
 	// Add a Custom filter.
 	add_filter( 'rest_pre_serve_request', function( $value ) {
-		header( 'Access-Control-Allow-Origin: *' );
+
+		if (empty($_SERVER["HTTP_REFERER"])) {
+			$origin = "*";
+		} else {
+			$urlParts = parse_url($_SERVER["HTTP_REFERER"]);
+			$origin = $urlParts["scheme"]."://".$urlParts["host"].(empty($urlParts["port"])?"":(":".$urlParts["port"]));
+		}
+
+		header( 'Access-Control-Allow-Origin: '.$origin );
 		header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
 		header( 'Access-Control-Allow-Credentials: true' );
 		return $value;
